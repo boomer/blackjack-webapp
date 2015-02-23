@@ -1,0 +1,7 @@
+
+# Refactoring: 
+# Hide first card for the dealer 1) need to show first card if dealer gets 21 after first deal, 
+# 2) show all cards on dealer bust, 
+# 3) show all dealer cards when game win/lose. 
+# Only show dealer total for cards shown; i.e. don't include first card in total shown until after the hand concludes.
+

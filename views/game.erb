@@ -1,0 +1,70 @@
+<div class="container">
+  <h1>Let's play Blackjack, <%= session[:player_name] %>!</h1>
+    <% if @error %>
+      <div class="alert alert-error"><%=@error%></div>
+    <% elsif @blackjack %>
+      <div class="alert alert-success"><%=@blackjack%></div>
+    <% elsif @stay %>
+      <div class="alert alert-information"><%=@stay%></div>
+    <% elsif @dealer_blackjack %>
+      <div class="alert alert-error"><%=@dealer_blackjack%></div>
+    <% elsif @dealer_busts %>
+      <div class="alert alert-success"><%=@dealer_busts%></div>
+    <% elsif @dealer_wins %>
+      <div class="alert alert-error"><%=@dealer_wins%></div>
+    <% elsif @dealer_loses %>
+      <div class="alert alert-success"><%=@dealer_loses%></div>
+    <% end %>
+</div>
+
+<% if @play_again %>
+  <p>
+    <strong>Play again?</strong>
+    <a href="/game" class="btn btn-primary">Yes</a>
+    <a href="/game_over" class="btn"> No</a>
+  </p>
+<% end %>
+
+<div class="well">
+  <span id="score">
+  <strong><%= session[:player_name] %>: <%= calculate_total(session[:player_cards])%>.</strong>
+    <span class="buttons">
+    <% if @show_hit_or_stay_buttons %>
+      <form id="hit_button" action="/game/player/hit" method="post"> 
+        <input type="submit" value="Hit" class='btn btn-success'/>
+      </form>
+      <form id="stay_button" action="/game/player/stay" method="post">
+        <input type="submit" value="Stay" class='btn btn-warning'/>
+      </form>
+    <% end %>
+    </span>
+  </span>
+  <div style="clear: both;"></div>
+  <% session[:player_cards].each do |card| %>
+    <img src="/images/cards/<%= display_card(card) %>" class="card_image">
+  <% end %>
+</div>
+
+<div class="well">
+  <span id="score">
+  <strong>Dealer:  
+    <%= calculate_total(session[:dealer_cards])%>.</strong>
+    <span class="buttons">
+    <% if @show_next_dealer_card %>
+      <form id="dealer_hit_button" action="/game/dealer/hit" method="post"> 
+        <input type="submit" value="Show next card" class='btn btn-success'/>
+      </form>
+    <% end %>
+    </span>
+  </span>
+  <div style="clear: both;"></div>
+  <% if @hit || @stay || @show_next_dealer_card %> 
+    <% session[:dealer_cards].each do |card| %>
+      <img src="/images/cards/<%= display_card(card) %>" class="card_image">
+    <% end %>
+  <% else %>
+    <img src="/images/cards/cover.jpg" class="card_image">
+    <img src="/images/cards/<%= display_card(session[:dealer_cards][1]) %>" class="card_image">
+  <% end %>
+</div>
+
