@@ -20,14 +20,14 @@
 <% if @play_again %>
   <p>
     <strong>Play again?</strong>
-    <a href="/game" class="btn btn-primary">Yes</a>
+    <a href="/bet" class="btn btn-primary">Yes</a>
     <a href="/game_over" class="btn"> No</a>
   </p>
 <% end %>
 
 <div class="well">
   <span id="score">
-  <strong><%= session[:player_name] %>: <%= calculate_total(session[:player_cards])%>.</strong>
+  <strong><%= session[:player_name] %> has <%= calculate_total(session[:player_cards])%>.</strong>
     <span class="buttons">
     <% if @show_hit_or_stay_buttons %>
       <form id="hit_button" action="/game/player/hit" method="post"> 
@@ -43,12 +43,13 @@
   <% session[:player_cards].each do |card| %>
     <img src="/images/cards/<%= display_card(card) %>" class="card_image">
   <% end %>
+
+  <p>  <br/><%= session[:player_name] %> has $<%= session[:player_pot] %> and has bet $<%= session[:player_bet] %> on this round.</p>
 </div>
 
 <div class="well">
   <span id="score">
-  <strong>Dealer:  
-    <%= calculate_total(session[:dealer_cards])%>.</strong>
+  <strong>Dealer has <%= calculate_total(session[:dealer_cards])%>.</strong>
     <span class="buttons">
     <% if @show_next_dealer_card %>
       <form id="dealer_hit_button" action="/game/dealer/hit" method="post"> 

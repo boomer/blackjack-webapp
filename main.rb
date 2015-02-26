@@ -8,6 +8,7 @@ use Rack::Session::Cookie, :key => 'rack.session',
 
 BLACKJACK_AMOUNT = 21
 DEALER_MIN_HIT = 17
+INITIAL_POT_AMOUNT = 500
 
 helpers do
   def calculate_total(cards)
@@ -89,16 +90,35 @@ get '/' do
 end
 
 get '/new_player' do
+  session[:player_pot] = INITIAL_POT_AMOUNT
   erb :new_player
+end
+
+get '/bet' do
+  session[:player_bet] = nil
+  erb :bet
+end
+
+post '/bet' do
+  if params[:bet_amount].nil? || params[:bet_amount].to_i == 0
+    @error = "Must make a bet."
+    halt erb(:bet)
+  elsif params[:bet_amount].to_i > session[:player_pot]
+    @error = "Bet amount cannot be greater than what you have ($#{session[:player_pot]}.)"
+    halt erb(:bet)
+  else #happy path
+    session[:player_bet] = params[:bet_amount].to_i
+    redirect '/game'
+  end
 end
 
 post '/new_player' do
   if params[:player_name].empty?
     @error = "Please enter your name."
     halt erb(:new_player)
-  end
+  end 
   session[:player_name] = params[:player_name]
-  redirect '/game'
+  redirect '/bet'
 end
 
 get '/game_over' do
@@ -136,10 +156,12 @@ post '/game/player/hit' do
   if calculate_total(session[:player_cards]) == BLACKJACK_AMOUNT
     @blackjack = "Blackjack, you won!"
     @show_hit_or_stay_buttons = false
+    session[:player_pot] = session[:player_pot] + session[:player_bet]
     @play_again = true
   elsif calculate_total(session[:player_cards]) > BLACKJACK_AMOUNT
     @error = "Sorry, you busted!" 
     @show_hit_or_stay_buttons = false
+    session[:player_pot] = session[:player_pot] - session[:player_bet]
     @play_again = true
   end
   erb :game
@@ -159,19 +181,23 @@ post '/game/dealer/hit' do
   if calculate_total(session[:dealer_cards]) == BLACKJACK_AMOUNT
     @dealer_blackjack = "Dealer gets Blackjack! You lose!"
     @show_next_dealer_card = false
+    session[:player_pot] = session[:player_pot] - session[:player_bet]
     @play_again = true
   elsif calculate_total(session[:dealer_cards]) > BLACKJACK_AMOUNT
     @dealer_busts = "Dealer busts. You win!" 
     @show_next_dealer_card = false
+    session[:player_pot] = session[:player_pot] + session[:player_bet]
     @play_again = true
   elsif calculate_total(session[:dealer_cards]) >= DEALER_MIN_HIT
     if calculate_total(session[:dealer_cards]) > calculate_total(session[:player_cards])
       @dealer_wins = "Dealer wins."
       @show_next_dealer_card = false
+      session[:player_pot] = session[:player_pot] - session[:player_bet]
       @play_again = true
     else
       @dealer_loses = "You win!"
       @show_next_dealer_card = false
+      session[:player_pot] = session[:player_pot] + session[:player_bet]
       @play_again = true
     end
   end
