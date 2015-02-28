@@ -164,14 +164,14 @@ post '/game/player/hit' do
     session[:player_pot] = session[:player_pot] - session[:player_bet]
     @play_again = true
   end
-  erb :game
+  erb :game, layout: false
 end
 
 post '/game/player/stay' do
   @stay = "You decided to stay."
   @show_hit_or_stay_buttons = false
   @show_next_dealer_card = true
-  erb :game
+  erb :game, layout: false
 end
 
 post '/game/dealer/hit' do
@@ -201,5 +201,5 @@ post '/game/dealer/hit' do
       @play_again = true
     end
   end
-    erb :game
+    erb :game, layout: false
 end
